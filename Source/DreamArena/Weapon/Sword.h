@@ -3,26 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/HUD.h"
-#include "HallHUD.generated.h"
+#include "BaseWeapon.h"
+#include "Sword.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DREAMARENA_API AHallHUD : public AHUD
+class DREAMARENA_API ASword : public ABaseWeapon
 {
 	GENERATED_BODY()
-	
+
 public:
 
-	AHallHUD();
+	ASword();
 
-
-protected:
-
-
-
-
-
+	virtual void StartAttack() override;
+	
 };

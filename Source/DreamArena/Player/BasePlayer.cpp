@@ -12,6 +12,8 @@
 #include "EnhancedInputSubsystems.h"
 
 
+
+
 ABasePlayer::ABasePlayer()
 {
 
@@ -133,3 +135,23 @@ UAbilitySystemComponent* ABasePlayer::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+
+
+void ABasePlayer::GetRoleBaseProperty_Implementation(float& Speed, bool& bWasJump, bool& bIsFalling)
+{
+
+	Speed = GetVelocity().Size2D();
+
+	bIsFalling = GetCharacterMovement()->IsFalling();
+
+	bWasJump = this->bWasJumping;
+
+
+
+}
+
+void ABasePlayer::ApplyDamage(int32 InDamage)
+{
+
+
+}

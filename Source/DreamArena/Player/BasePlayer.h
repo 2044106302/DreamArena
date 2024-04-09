@@ -7,11 +7,13 @@
 #include "InputActionValue.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "../Interface/RoleAnim.h"
 
 #include "BasePlayer.generated.h"
 
+
 UCLASS(config = Game)
-class DREAMARENA_API ABasePlayer : public ACharacter, public IAbilitySystemInterface
+class DREAMARENA_API ABasePlayer : public ACharacter, public IAbilitySystemInterface, public IRoleAnim
 {
 	GENERATED_BODY()
 
@@ -53,22 +55,16 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
 public:
-
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-
 protected:
 
 	void Move(const FInputActionValue& Value);
-
 	void Look(const FInputActionValue& Value);
-
-
 
 public:
 
@@ -80,5 +76,15 @@ public:
 	// 将在游戏启动时被赋予角色的Abilities数组
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	TArray<TSubclassOf<class UGameplayAbility>> PreloadedAbilities;
+
+public:
+
+	UFUNCTION()
+	virtual void GetRoleBaseProperty_Implementation(float& Speed, bool& bWasJump, bool& bIsFalling) override;
+
+
+public:
+	virtual void ApplyDamage(int32 InDamage);
+
 
 };

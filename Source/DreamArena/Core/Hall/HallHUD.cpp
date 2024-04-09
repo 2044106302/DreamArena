@@ -3,3 +3,7 @@
 
 #include "HallHUD.h"
 
+AHallHUD::AHallHUD()
+{
+
+}
