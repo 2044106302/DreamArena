@@ -17,4 +17,5 @@ class DREAMARENA_API AHallGameMode : public AGameModeBase
 public:
 	AHallGameMode();
 	
+
 };

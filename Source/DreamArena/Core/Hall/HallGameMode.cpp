@@ -10,5 +10,5 @@ AHallGameMode::AHallGameMode()
 	HUDClass = AHallHUD::StaticClass();
 	PlayerControllerClass = AHallPlayerController::StaticClass();
 	DefaultPawnClass = nullptr;
-
+	
 }
