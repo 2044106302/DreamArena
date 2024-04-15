@@ -1,9 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HallHUD.h"
+#include "SpinArenaPlayerState.h"
 
-AHallHUD::AHallHUD()
-{
-	
-}

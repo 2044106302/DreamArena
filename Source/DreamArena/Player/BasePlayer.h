@@ -17,7 +17,6 @@ class DREAMARENA_API ABasePlayer : public ACharacter, public IAbilitySystemInter
 {
 	GENERATED_BODY()
 
-
 	//  临时添加一把 到 最后才有
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -79,12 +78,10 @@ public:
 
 public:
 
-	UFUNCTION()
 	virtual void GetRoleBaseProperty_Implementation(float& Speed, bool& bWasJump, bool& bIsFalling) override;
-
-
 public:
-	virtual void ApplyDamage(int32 InDamage);
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,class AController* EventInstigator, AActor* DamageCauser) override;
 
+	
 };
