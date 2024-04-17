@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "RoleAnim.generated.h"
+#include "ControllerNotify.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class URoleAnim : public UInterface
+class UControllerNotify : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,18 +16,16 @@ class URoleAnim : public UInterface
 /**
  * 
  */
-class DREAMARENA_API IRoleAnim
+class DREAMARENA_API IControllerNotify
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interface )
-	void GetRoleBaseProperty(float& Speed, bool& bWasJump, bool& bIsFalling,bool& WasRoll);
 
-
-
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interface)
+	 void SucceedJoinGame();
 
 
 };

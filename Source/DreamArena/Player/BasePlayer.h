@@ -32,6 +32,9 @@ class DREAMARENA_API ABasePlayer : public ACharacter, public IAbilitySystemInter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* JumpAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* RollAction;
+
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
@@ -54,9 +57,6 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-
 public:
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -67,6 +67,9 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+
+	void RollBegin(const FInputActionValue& Value);
+	void RollEnd(const FInputActionValue& Value);
 
 public:
 
@@ -79,11 +82,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	TArray<TSubclassOf<class UGameplayAbility>> PreloadedAbilities;
 
+protected:
+
+	UPROPERTY(ReplicatedUsing = "RollChange_RU")
+	bool bRolling;
+
+	UFUNCTION()
+	void RollChange_RU();
+
+
+
 public:
 
-	virtual void GetRoleBaseProperty_Implementation(float& Speed, bool& bWasJump, bool& bIsFalling) override;
+	virtual void GetRoleBaseProperty_Implementation(float& Speed, bool& bWasJump, bool& bIsFalling, bool& WasRoll) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:
 
-
+	virtual void DestroyPlayer();
 	
 };

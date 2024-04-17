@@ -39,7 +39,7 @@ FORCEINLINE void UBaseAnim::GetRoleProperty()
 	{
 		IRoleAnim* RoleAnim_BPI = CastChecked<IRoleAnim>(TryGetPawnOwner());
 
-		RoleAnim_BPI->Execute_GetRoleBaseProperty(TryGetPawnOwner(), Speed, bWasJump, bFalling);
+		RoleAnim_BPI->Execute_GetRoleBaseProperty(TryGetPawnOwner(), Speed, bWasJump, bFalling, bRolling);
 
 	}
 

@@ -41,5 +41,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "RoleProperty")
 	bool bFalling;
+
+	UPROPERTY(BlueprintReadOnly, Category = "RoleProperty")
+	bool bRolling;
+
 	
 };

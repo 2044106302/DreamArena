@@ -108,9 +108,14 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
+
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &ABasePlayer::RollBegin);
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Completed, this, &ABasePlayer::RollEnd);
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Ongoing, this, &ABasePlayer::RollEnd);
+
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABasePlayer::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABasePlayer::Look);
-
+		
 
 	}
 
@@ -153,6 +158,20 @@ void ABasePlayer::Look(const FInputActionValue& Value)
 
 }
 
+
+
+void ABasePlayer::RollBegin(const FInputActionValue& Value)
+{
+
+	bRolling = true;
+}
+
+void ABasePlayer::RollEnd(const FInputActionValue& Value)
+{
+
+	bRolling = false;
+}
+
 UAbilitySystemComponent* ABasePlayer::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
@@ -160,13 +179,35 @@ UAbilitySystemComponent* ABasePlayer::GetAbilitySystemComponent() const
 
 
 
-void ABasePlayer::GetRoleBaseProperty_Implementation(float& Speed, bool& bWasJump, bool& bIsFalling)
+void ABasePlayer::RollChange_RU()
+{
+
+}
+
+void ABasePlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// DOREPLIFETIME()
+}
+
+
+
+void ABasePlayer::GetRoleBaseProperty_Implementation(float& Speed, bool& bWasJump, bool& bIsFalling, bool& WasRoll)
 {
 	Speed = GetVelocity().Size2D();
 	bIsFalling = GetCharacterMovement()->IsFalling();
 	bWasJump = this->bWasJumping;
+	WasRoll = bRolling;
 
 }
 
+
+void ABasePlayer::DestroyPlayer()
+{
+
+
+	this->Destroy();
+}
 
 

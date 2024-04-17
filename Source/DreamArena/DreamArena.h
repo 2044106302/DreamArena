@@ -4,3 +4,9 @@
 
 #include "CoreMinimal.h"
 
+
+UENUM()
+enum class ERoleType : uint8 {
+	DoubleSword
+
+};
