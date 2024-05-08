@@ -46,4 +46,10 @@ protected:
 	bool bRolling;
 
 	
+
+protected:
+
+	UFUNCTION()
+	void AnimNotify_RollEnd(UAnimNotify* Notify);
+
 };

@@ -16,6 +16,27 @@ void ASpinArenaPlayerController::SucceedJoinGame_Implementation()
 
 }
 
+void ASpinArenaPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	if (ASpinArenaGameMode* SpinArenaGameMode = GetWorld()->GetAuthGameMode<ASpinArenaGameMode>())
+	{
+		GameRoundBeginHandle = SpinArenaGameMode->GameRoundBeginDelegate.AddUObject(this, &ASpinArenaPlayerController::GameRoundBegin);
+	}
+
+}
+
+void ASpinArenaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (ASpinArenaGameMode* SpinArenaGameMode = GetWorld()->GetAuthGameMode<ASpinArenaGameMode>())
+	{
+		SpinArenaGameMode->GameRoundBeginDelegate.Remove(GameRoundBeginHandle);
+	}
+
+}
+
 void ASpinArenaPlayerController::SucceedJoinGameOnClient_Implementation()
 {
 
@@ -37,7 +58,6 @@ void ASpinArenaPlayerController::SpawnAndControlPawn(ERoleType RoleType)
 
 void ASpinArenaPlayerController::SpawnAndControlPawn_OnServer_Implementation(ERoleType RoleType)
 {
-	UE_LOG(LogTemp, Warning, TEXT(" ASpinArenaPlayerController::SpawnAndControlPawn_OnServer_Implementation()"));
 	if (ASpinArenaGameMode* SpinArenaGameMode = GetWorld()->GetAuthGameMode<ASpinArenaGameMode>())
 	{
 		if (ABasePlayer* MyPlayer = SpinArenaGameMode->SpawnPawn(RoleType))
@@ -62,5 +82,24 @@ void ASpinArenaPlayerController::SpawnAndControlPawn_OnServer_Implementation(ERo
 		}
 
 	}
+
+}
+
+void ASpinArenaPlayerController::GameRoundBegin()
+{
+
+	if (GetPawn())
+	{
+		if (ASpinArenaGameMode* SpinArenaGameMode = GetWorld()->GetAuthGameMode<ASpinArenaGameMode>())
+		{
+			SpinArenaGameMode->AllocatePlayerTransform(this->GetPawn());
+		}
+	}
+
+
+}
+
+void ASpinArenaPlayerController::GameRoundEnd()
+{
 
 }

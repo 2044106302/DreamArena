@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "../../Interface/ControllerNotify.h"
+#include "DreamArena/Interface/ControllerNotify.h"
 #include "DreamArena/DreamArena.h"
 #include "SpinArenaPlayerController.generated.h"
 
@@ -17,11 +17,13 @@ class DREAMARENA_API ASpinArenaPlayerController : public APlayerController, publ
 
 protected:
 
+	virtual void BeginPlay() override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 protected:
 
 	virtual void SucceedJoinGame_Implementation() override;
-
-
 
 public:
 	UFUNCTION(Client,Reliable)
@@ -33,4 +35,14 @@ public:
 	UFUNCTION(Server,Reliable)
 	void SpawnAndControlPawn_OnServer(ERoleType RoleType);
 	
+
+
+	FDelegateHandle GameRoundBeginHandle;
+	void GameRoundBegin();
+
+
+	// GotoReady
+	FDelegateHandle GameRoundEndHandle;
+	void GameRoundEnd();
+
 };

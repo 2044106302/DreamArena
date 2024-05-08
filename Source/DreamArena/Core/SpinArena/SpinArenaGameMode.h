@@ -7,6 +7,12 @@
 #include "DreamArena/DreamArena.h"
 #include "SpinArenaGameMode.generated.h"
 
+
+DECLARE_MULTICAST_DELEGATE(FSpinGameRoundBegin);
+
+
+
+
 class ABasePlayer;
 UCLASS()
 class DREAMARENA_API ASpinArenaGameMode : public AGameModeBase
@@ -15,10 +21,18 @@ class DREAMARENA_API ASpinArenaGameMode : public AGameModeBase
 
 protected:
 
+
 	UPROPERTY()
 	TSubclassOf<ABasePlayer> DoubleSwordClass;
 
 
+	UPROPERTY()
+	TArray<AActor*> ReadyPlayerStarts;
+	uint8  ReadySpawnCount;
+
+	UPROPERTY()
+	TArray<AActor*> GamePlayerStarts;
+	uint8 GameSpawnCount;
 
 public:
 	ASpinArenaGameMode();
@@ -35,17 +49,25 @@ protected:
 
 protected:
 
-
-
-
-
-
 	// 最大玩家个数
 	uint8 MaxPlayerNumber;
 
 public:
+
+	uint8 ReadyPlayerNums;
+
 	ABasePlayer* SpawnPawn(ERoleType RoleType);
 
 
+public:
 
+	FSpinGameRoundBegin GameRoundBeginDelegate;
+
+	// 回合开始
+	void GameRoundBegin();
+
+	void AllocatePlayerTransform(AActor* InActor);
+
+protected:
+	FTimerHandle GameRoundBeginTimer;
 };

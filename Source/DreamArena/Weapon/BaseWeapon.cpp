@@ -17,9 +17,6 @@ ABaseWeapon::ABaseWeapon()
 void ABaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-	
 }
 
 // Called every frame
@@ -32,5 +29,10 @@ void ABaseWeapon::Tick(float DeltaTime)
 void ABaseWeapon::StartAttack()
 {
 
+}
+
+float ABaseWeapon::CalculateTracePointDistance()
+{
+	return ((Instance->GetSocketTransform(FName(TEXT("TraceBegin")), RTS_Component).GetLocation() - Instance->GetSocketTransform(FName(TEXT("TraceEnd")), RTS_Component).GetLocation())).Z / TracePointCount;
 }
 

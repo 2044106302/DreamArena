@@ -9,6 +9,9 @@
 #include "../../Player/BasePlayer.h"
 #include "../../Interface/ControllerNotify.h"
 #include "GameFramework/SpectatorPawn.h"
+#include "Kismet/GameplayStatics.h"
+#include "DreamArena/Extras/PlayerStart/GamePlayerStart.h"
+#include "DreamArena/Extras/PlayerStart/ReadyPlayerStart.h"
 
 ASpinArenaGameMode::ASpinArenaGameMode()
 {
@@ -22,8 +25,10 @@ ASpinArenaGameMode::ASpinArenaGameMode()
 	GameStateClass = ASpinArenaGameState::StaticClass();
 	PlayerStateClass = ASpinArenaPlayerState::StaticClass();
 
-
-	
+	MaxPlayerNumber = 2;
+	ReadySpawnCount = 0;
+	GameSpawnCount = 0;
+	ReadyPlayerNums = 0;
 
 }
 
@@ -51,32 +56,63 @@ void ASpinArenaGameMode::Logout(AController* Exiting)
 void ASpinArenaGameMode::StartPlay()
 {
 	Super::StartPlay();
-
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AReadyPlayerStart::StaticClass(), ReadyPlayerStarts);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGamePlayerStart::StaticClass(), GamePlayerStarts);
 
 }
 
 ABasePlayer* ASpinArenaGameMode::SpawnPawn(ERoleType RoleType)
 {
-
-	if (DoubleSwordClass)
-	{
-		UE_LOG(LogTemp, Warning, TEXT(" DoubleSwordClass"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT(" DoubleSwordClass nullptr"));
-	}
+	ABasePlayer* ReturnPlayer = nullptr;
 
 	switch (RoleType)
 	{
 	case  ERoleType::DoubleSword:
 	{
-		return GetWorld()->SpawnActor<ABasePlayer>(DoubleSwordClass);
+		if (ReadySpawnCount >= ReadyPlayerStarts.Num()) ReadySpawnCount = 0;
+		ReturnPlayer = GetWorld()->SpawnActor<ABasePlayer>(DoubleSwordClass, ReadyPlayerStarts[ReadySpawnCount++]->GetActorTransform());
 		break;
 	}
 	default:
 		break;
 	}
-	return nullptr;
+	if (++ReadyPlayerNums >= MaxPlayerNumber)
+	{
+		GameRoundBegin();
+	}
+
+	return ReturnPlayer;
+
+}
+
+
+void ASpinArenaGameMode::GameRoundBegin()
+{
+
+	if (ASpinArenaGameState* SpinArenaGameState = GetGameState<ASpinArenaGameState>()) SpinArenaGameState->SpinArenaGameStatus = ESpinArenaGameStatus::Gaming;
+
+	GetWorld()->GetTimerManager().SetTimer(GameRoundBeginTimer, [this]() {
+		GetWorld()->GetTimerManager().ClearTimer(GameRoundBeginTimer);
+		GameRoundBeginDelegate.Broadcast();
+		}, 1, false);
+
+}
+
+void ASpinArenaGameMode::AllocatePlayerTransform(AActor* InActor)
+{
+	if (ASpinArenaGameState* SpinArenaGameState = GetGameState<ASpinArenaGameState>())
+	{
+		if (SpinArenaGameState->SpinArenaGameStatus == ESpinArenaGameStatus::Ready)
+		{
+			if (ReadySpawnCount >= ReadyPlayerStarts.Num()) ReadySpawnCount = 0;
+			InActor->SetActorTransform(ReadyPlayerStarts[ReadySpawnCount++]->GetActorTransform());
+		}
+		else if(SpinArenaGameState->SpinArenaGameStatus == ESpinArenaGameStatus::Gaming)
+		{
+			if (GameSpawnCount >= GamePlayerStarts.Num()) GameSpawnCount = 0;
+			InActor->SetActorTransform(GamePlayerStarts[GameSpawnCount++]->GetActorTransform());
+		}
+
+	}
 
 }

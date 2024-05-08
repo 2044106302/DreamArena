@@ -3,3 +3,7 @@
 
 #include "SpinArenaGameState.h"
 
+ASpinArenaGameState::ASpinArenaGameState()
+{
+
+}

@@ -26,8 +26,4 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interface )
 	void GetRoleBaseProperty(float& Speed, bool& bWasJump, bool& bIsFalling,bool& WasRoll);
 
-
-
-
-
 };

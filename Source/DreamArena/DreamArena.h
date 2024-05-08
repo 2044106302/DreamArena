@@ -10,3 +10,11 @@ enum class ERoleType : uint8 {
 	DoubleSword
 
 };
+
+
+UENUM()
+enum class ESpinArenaGameStatus : uint8 {
+	Ready,
+	Gaming,
+	GameOver,
+};

@@ -32,6 +32,9 @@ public:
 
 public:
 
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	int32 TracePointCount;
+
 
 	/*
 	* Only one Property is added here for future expansion
@@ -40,5 +43,9 @@ public:
 	int32 Damage;
 
 
+	float CalculateTracePointDistance();
+
+
+	 
 
 };

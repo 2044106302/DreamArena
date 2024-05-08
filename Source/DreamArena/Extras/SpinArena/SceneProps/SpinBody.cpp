@@ -16,6 +16,7 @@ ASpinBody::ASpinBody()
 	Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Body"));
 	Body->SetupAttachment(BoxCollision);
 
+
 }
 
 // Called when the game starts or when spawned

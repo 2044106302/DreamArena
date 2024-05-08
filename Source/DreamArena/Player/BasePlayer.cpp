@@ -93,7 +93,8 @@ void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+
+
 
 }
 
@@ -102,6 +103,15 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	if (IsValid(AbilitySystemComponent))
+	{
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(PlayerInputComponent,
+			FGameplayAbilityInputBinds(
+			FString(),FString(),FString(""),0,0));
+
+	}
+
+
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 
 
@@ -109,9 +119,9 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 
-		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &ABasePlayer::RollBegin);
-		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Completed, this, &ABasePlayer::RollEnd);
-		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Ongoing, this, &ABasePlayer::RollEnd);
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Started, this, &ABasePlayer::RollBegin);
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Completed, this, &ABasePlayer::RoleEnd);
+
 
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABasePlayer::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABasePlayer::Look);
@@ -142,7 +152,6 @@ void ABasePlayer::Move(const FInputActionValue& Value)
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Move"));
 }
 
 void ABasePlayer::Look(const FInputActionValue& Value)
@@ -164,13 +173,55 @@ void ABasePlayer::RollBegin(const FInputActionValue& Value)
 {
 
 	bRolling = true;
+	RollBeginOnServer();
 }
 
-void ABasePlayer::RollEnd(const FInputActionValue& Value)
+void ABasePlayer::RoleEnd(const FInputActionValue& Value)
 {
+	ToRollEnd();
+}
 
+void ABasePlayer::RollBeginOnServer_Implementation()
+{
+	RollBeginOnMulticast();
+}
+
+void ABasePlayer::RollBeginOnMulticast_Implementation()
+{
+	bRolling = true;
+}
+
+
+
+
+void ABasePlayer::ToRollEnd()
+{
+	bRolling = false;
+	RollEndOnServer();
+}
+
+void ABasePlayer::GiveAbility(TSubclassOf<UGameplayAbility> Ability, int32 Level /*= 1*/)
+{
+	if (AbilitySystemComponent)
+	{
+		if (HasAuthority() && Ability)
+		{
+			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, Level));
+		}
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
+}
+
+void ABasePlayer::RollEndOnServer_Implementation()
+{
+	RollEndOnMulticast();
+}
+
+void ABasePlayer::RollEndOnMulticast_Implementation()
+{
 	bRolling = false;
 }
+
 
 UAbilitySystemComponent* ABasePlayer::GetAbilitySystemComponent() const
 {
@@ -178,10 +229,30 @@ UAbilitySystemComponent* ABasePlayer::GetAbilitySystemComponent() const
 }
 
 
-
-void ABasePlayer::RollChange_RU()
+void ABasePlayer::PlayerAcceptImpact_Implementation()
 {
+	UE_LOG(LogTemp, Warning, TEXT("PlayerAcceptImpact_Implementation"));
 
+	GetMesh()->SetAllBodiesSimulatePhysics(true);
+	GetMesh()->SetAllBodiesPhysicsBlendWeight(1, false);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void ABasePlayer::BeBlockHit()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetAllBodiesSimulatePhysics(true);
+	GetMesh()->SetAllBodiesPhysicsBlendWeight(1, false);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	GetWorld()->GetTimerManager().SetTimer(PhyTimer, [this]() {
+
+		GetWorld()->GetTimerManager().ClearTimer(PhyTimer);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetAllBodiesSimulatePhysics(false);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		}, 2, false);
 }
 
 void ABasePlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -195,6 +266,8 @@ void ABasePlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 
 void ABasePlayer::GetRoleBaseProperty_Implementation(float& Speed, bool& bWasJump, bool& bIsFalling, bool& WasRoll)
 {
+
+
 	Speed = GetVelocity().Size2D();
 	bIsFalling = GetCharacterMovement()->IsFalling();
 	bWasJump = this->bWasJumping;

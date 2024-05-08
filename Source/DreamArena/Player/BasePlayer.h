@@ -7,13 +7,14 @@
 #include "InputActionValue.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
-#include "../Interface/RoleAnim.h"
+#include "DreamArena/Interface/RoleAnim.h"
+#include "DreamArena/Interface/Impact.h"
 
 #include "BasePlayer.generated.h"
 
 
 UCLASS(config = Game)
-class DREAMARENA_API ABasePlayer : public ACharacter, public IAbilitySystemInterface, public IRoleAnim
+class DREAMARENA_API ABasePlayer : public ACharacter, public IAbilitySystemInterface, public IRoleAnim, public IImpact
 {
 	GENERATED_BODY()
 
@@ -68,8 +69,35 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
+
 	void RollBegin(const FInputActionValue& Value);
-	void RollEnd(const FInputActionValue& Value);
+
+
+	UFUNCTION(Server, Unreliable)
+	void RollBeginOnServer();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void RollBeginOnMulticast();
+
+
+	void RoleEnd(const FInputActionValue& Value);
+
+	UFUNCTION(Server, Unreliable)
+	void RollEndOnServer();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void RollEndOnMulticast();
+
+
+public:
+	void ToRollEnd();
+
+	//添加Ability
+	UFUNCTION(BlueprintCallable, Category = "Ability System")
+	void GiveAbility(TSubclassOf<UGameplayAbility> Ability, int32 Level = 1);
+
+
+
 
 public:
 
@@ -84,21 +112,24 @@ public:
 
 protected:
 
-	UPROPERTY(ReplicatedUsing = "RollChange_RU")
+	UPROPERTY(Replicated)
 	bool bRolling;
-
-	UFUNCTION()
-	void RollChange_RU();
-
 
 
 public:
 
 	virtual void GetRoleBaseProperty_Implementation(float& Speed, bool& bWasJump, bool& bIsFalling, bool& WasRoll) override;
 
+	virtual void PlayerAcceptImpact_Implementation() override;
+
+
+	UFUNCTION(BlueprintCallable)
+	void BeBlockHit();
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
+	FTimerHandle PhyTimer;
 
 	virtual void DestroyPlayer();
 	

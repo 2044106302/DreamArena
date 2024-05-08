@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
+#include "DreamArena/DreamArena.h"
 #include "SpinArenaGameState.generated.h"
 
 /**
@@ -16,9 +17,11 @@ class DREAMARENA_API ASpinArenaGameState : public AGameStateBase
 
 public:
 
+	ASpinArenaGameState();
+
 	
 
-
+	ESpinArenaGameStatus SpinArenaGameStatus;
 
 	// 对局场数
 	uint8 GameNumber;

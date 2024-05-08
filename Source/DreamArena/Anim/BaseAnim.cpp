@@ -2,8 +2,9 @@
 
 
 #include "BaseAnim.h"
-#include "../Interface/RoleAnim.h"
+#include "DreamArena/Interface/RoleAnim.h"
 #include "Animation/AnimInstance.h"
+#include "../Player/BasePlayer.h"
 
 UBaseAnim::UBaseAnim()
 {
@@ -27,7 +28,6 @@ void UBaseAnim::NativeUpdateAnimation(float DeltaSeconds)
 	if (TryGetPawnOwner())
 	{
 		GetRoleProperty();
-
 	}
 
 
@@ -43,4 +43,12 @@ FORCEINLINE void UBaseAnim::GetRoleProperty()
 
 	}
 
+}
+
+void UBaseAnim::AnimNotify_RollEnd(UAnimNotify* Notify)
+{
+	if (ABasePlayer* BasePlayer = Cast<ABasePlayer>(TryGetPawnOwner()))
+	{
+		BasePlayer->ToRollEnd();
+	}
 }

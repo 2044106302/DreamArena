@@ -25,9 +25,6 @@ protected:
 
 	virtual void NativeDestruct() override;
 
-
-
-
 	UFUNCTION()
 	void DoubleSwordBtn_Complete();
 	
